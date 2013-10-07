@@ -1,18 +1,11 @@
 /**
-* Customized version of mocha xunit reporter based on originam mocha xunti reporter 
-* xunit-file reporter. 
-* Needs better documentation etc. 
+* Customized version of mocha xunit reporter.
+* Based on original mocha xunit reporter and xunit-file reporter.
+* Needs better documentation, licence, further customization options, etc.
+* initial version
 */
  
-/**
-* Module dependencies.
-*/
- 
-var Base = require('./base')
-  , utils = require('../utils')
-  , escape = utils.escape
-  //ZH-PRIDANE
-  , fs = require('fs')
+  var fs = require('fs')
   , filePath = process.cwd() + '/xunit.xml'
   , fd = fs.openSync(filePath, 'w', 0755);
  
@@ -40,79 +33,74 @@ exports = module.exports = XUnitZH;
 */
  
 function XUnitZH(runner) {
-  Base.call(this, runner);
  
-  var stats = this.stats
-    , tests = []
-    , self = this;
+  var tests = [],
+      passes = 0,
+      failures = 0;
  
   runner.on('pass', function(test){
     test.state = 'passed';
+    passes++;
     tests.push(test);
+    test.number = tests.length;
   });
  
   runner.on('fail', function(test){
     test.state = 'failed';
+    failures++;
     tests.push(test);
+    test.number = tests.length;
   });
  
   runner.on('end', function(){
-    console.log(tag('testsuite', {
-        name: 'Mocha Tests'
-      , tests: stats.tests
-      , failures: stats.failures
-      , errors: stats.failures
-      , skipped: stats.tests - stats.failures - stats.passes
-      , timestamp: (new Date).toUTCString()
-      , time: stats.duration / 1000
-    }, false));
- 
+    console.log();
+    console.log('testsuite: Mocha Tests'
+              + ', tests: ' + tests.length
+              + ', failures: ' + failures
+              + ', errors: ' + failures
+              + ', skipped: ' + (tests.length - failures - passes)
+              + ', time: ' + 0
+              );
+
     appendLine(tag('testsuite', {
         name: 'Mocha Tests'
-      , tests: stats.tests
-      , failures: stats.failures
-      , errors: stats.failures
-      , skip: stats.tests - stats.failures - stats.passes
+      , tests: tests.length
+      , failures: failures
+      , errors: failures
+      , skip: tests.length - failures - passes
       , timestamp: (new Date).toUTCString()
-      , time: stats.duration / 1000
+      , time: 0
     }, false));
  
     tests.forEach(test);
-    console.log('</testsuite>');
     appendLine('</testsuite>');
-    fs.closeSync(fd);  
+    fs.closeSync(fd);
+    process.exit(failures);  
   });
 }
- 
-/**
-* Inherit from `Base.prototype`.
-*/
- 
-XUnitZH.prototype.__proto__ = Base.prototype;
  
 /**
 * Output tag for the given `test.`
 */
  
 function test(test) {
-  //(ZH:1)
   var attrs = {
       classname: test.fullTitle()
  
     , name: test.title
-    , time: test.duration / 1000
+    , time: test.duration ? (test.duration / 1000) : 0
   };
  
   if ('failed' == test.state) {
     var err = test.err;
     attrs.message = escape(err.message);
-    console.log(tag('testcase', attrs, false, tag('failure', attrs, false, cdata(err.stack))));
+    toConsole( test.number, test.title, 'FAIL', err.stack);
     appendLine(tag('testcase', attrs, false, tag('failure', { message: escape(err.message) }, false, cdata(err.stack))));
   } else if (test.pending) {
-    console.log(tag('testcase', attrs, false, tag('skipped', {}, true)));
+    toConsole( test.number, test.title, 'SKIPPED', false);
     appendLine(tag('testcase', attrs, false, tag('skipped', {}, true)));
   } else {
-    console.log(tag('testcase', attrs, true) );
+    toConsole( test.number, test.title, 'OK', false);
     appendLine(tag('testcase', attrs, true) );
   }
 }
@@ -134,6 +122,17 @@ function tag(name, attrs, close, content) {
   if (content) tag += content + '</' + name + end;
   return tag;
 }
+
+/**
+* Output to console
+*/
+
+function toConsole(number, name, state, content){
+  console.log(number + ') ' + state + ' ' + name);
+  if (content) {
+    console.log('\t' + content);
+  }
+}
  
 /**
 * Return cdata escaped CDATA `str`.
@@ -146,3 +145,12 @@ function cdata(str) {
 function appendLine(line) {
     fs.writeSync(fd, line + "\n", null, 'utf8');
 }
+
+function escape(html){
+  return String(html)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+

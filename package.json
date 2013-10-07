@@ -1,0 +1,18 @@
+{
+  "name": "mocha-xunit-zh",
+  "version": "0.0.1",
+  "description": "\"first try out with customized xunit reporter mocha based on original mocha xunit reporter and xunit-file\"",
+  "main": "xunit-zh.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zuzana/mocha-xunit-zh.git"
+  },
+  "author": "Zuzana Harcarikova",
+  "license": "MIT license",
+  "bugs": {
+    "url": "https://github.com/zuzana/mocha-xunit-zh/issues"
+  }
+}
