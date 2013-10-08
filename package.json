@@ -1,6 +1,6 @@
 {
   "name": "mocha-xunit-zh",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "\"first try out with customized xunit reporter mocha based on original mocha xunit reporter and xunit-file\"",
   "main": "xunit-zh.js",
   "scripts": {

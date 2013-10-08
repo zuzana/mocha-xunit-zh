@@ -2,7 +2,7 @@
 * Customized version of mocha xunit reporter.
 * Based on original mocha xunit reporter and xunit-file reporter.
 * Needs better documentation, licence, further customization options, etc.
-* initial version
+* version 0.0.2
 */
  
   var fs = require('fs')
