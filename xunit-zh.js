@@ -67,7 +67,7 @@ function XUnitZH(runner) {
       , tests: tests.length
       , failures: failures
       , errors: failures
-      , skip: tests.length - failures - passes
+      , skipped: tests.length - failures - passes
       , timestamp: (new Date).toUTCString()
       , time: 0
     }, false));
