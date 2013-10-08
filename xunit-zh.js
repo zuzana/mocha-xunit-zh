@@ -2,7 +2,7 @@
 * Customized version of mocha xunit reporter.
 * Based on original mocha xunit reporter and xunit-file reporter.
 * Needs better documentation, licence, further customization options, etc.
-* version 0.0.2
+* version 0.0.3
 */
  
   var fs = require('fs')
@@ -86,14 +86,12 @@ function XUnitZH(runner) {
 function test(test) {
   var attrs = {
       classname: test.fullTitle()
- 
     , name: test.title
     , time: test.duration ? (test.duration / 1000) : 0
   };
  
   if ('failed' == test.state) {
     var err = test.err;
-    attrs.message = escape(err.message);
     toConsole( test.number, test.title, 'FAIL', err.stack);
     appendLine(tag('testcase', attrs, false, tag('failure', { message: escape(err.message) }, false, cdata(err.stack))));
   } else if (test.pending) {
